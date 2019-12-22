@@ -21,7 +21,7 @@ public class PiKaChuExample {
                     System.out.println("手机详情链接 = " + detail);
                     Links links = html.select("#J_bottomPage > span.p-num > a").links();
                     // 添加新的请求任务
-                    context.addRequest(links.toArray(new String[0]));
+                    context.addRequest(links);
                     System.out.println("列表页 = " + links);
                 }).build().go();
     }
@@ -46,7 +46,7 @@ public class PiKaChuExample {
                     System.out.println("手机详情链接 = " + detail);
                     Links links = html.select("#J_bottomPage > span.p-num > a").links();
                     // 添加新的请求任务
-                    context.addRequest(links.toArray(new String[0]));
+                    context.addRequest(links);
                     System.out.println("列表页 = " + links);
                 }).build();
     }
