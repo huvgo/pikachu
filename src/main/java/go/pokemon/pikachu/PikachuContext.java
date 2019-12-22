@@ -4,6 +4,7 @@ import lombok.ToString;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @ToString
@@ -37,5 +38,14 @@ public class PikachuContext {
         }
     }
 
+
+    public void addRequest(List<String> urls) {
+        if (this.request == null) {
+            this.request = new HashSet<>();
+        }
+        if (urls != null) {
+            this.request.addAll(urls);
+        }
+    }
 
 }
