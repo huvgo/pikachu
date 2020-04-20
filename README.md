@@ -10,19 +10,17 @@ public class PiKaChuExample {
     /**
      * 测试京东 手机分类抓取详情页
      * https://list.jd.com/list.html?cat=9987,653,655
-     */       
-    public static void main(String[] args) {
-        // config可以做相关配置，seedRequest是爬虫的种子请求
+     */
+    @Test
+    public void testJd() {
         Pikachu.builder().configurer(config -> config.setThreadNum(3).setTimeOut(3000)).seedRequest("https://list.jd.com/list.html?cat=9987,653,655")
                 .responseHandler(context -> {
-                    // 处理相关逻辑
                     HTML html = context.response().getHtml();
                     Links detail = html.links().regex("(https://item.jd.com/[0-9][0-9]*.html)");
-                    System.out.println("手机详情链接 = " + detail);
+                    log.info("手机详情页 = {}", detail);
                     Links links = html.select("#J_bottomPage > span.p-num > a").links();
-                    // 添加新的请求任务
-                    context.addRequest(links);
-                    System.out.println("列表页 = " + links);
+                    context.addRequest(links.toArray(new String[0]));
+                    log.info("列表页 = {}", links);
                 }).build().go();
     }
   
@@ -39,15 +37,15 @@ public class PiKaChuExample {
      */       
     @Bean
     public Pikachu JDCrawler() {
-        return Pikachu.builder().configurer(config -> config.setThreadNum(3).setTimeOut(3000)).seedRequest("https://list.jd.com/list.html?cat=9987,653,655")
+        return Pikachu.builder(config -> config.setThreadNum(3).setTimeOut(3000)).seedRequest("https://list.jd.com/list.html?cat=9987,653,655")
                 .responseHandler(context -> {
                     HTML html = context.response().getHtml();
                     Links detail = html.links().regex("(https://item.jd.com/[0-9][0-9]*.html)");
-                    System.out.println("手机详情链接 = " + detail);
+                    System.out.println("手机详情链接 = {}" , detail);
                     Links links = html.select("#J_bottomPage > span.p-num > a").links();
                     // 添加新的请求任务
                     context.addRequest(links);
-                    System.out.println("列表页 = " + links);
+                    System.out.println("列表页 = {}" , links);
                 }).build();
     }
 }
