@@ -50,23 +50,42 @@ public class Pikachu {
     }
 
     public void go() {
-        initCheck();
         log.info("Go,Pikachu!");
+        // 初始化
+        init();
+        // 运行服务
+        service();
+        // 销毁资源
+        destroy();
+    }
+
+    private void init() {
+        if (configurer != null) {
+            configurer.configure(config);
+        }
+        if (downloader == null) {
+            downloader = new HttpClientDownloader();
+        }
+        if (executorService == null) {
+            this.executorService = Executors.newFixedThreadPool(config.threadNum);
+        }
+    }
+
+    private void service() {
         while (true) {
             String url = requestQueue.poll();
             if (url == null) {
                 if (threadCount.get() == 0) {
                     break;
-                }
-                urlLock.lock();
-                try {
-                    if (threadCount.get() != 0) {
+                } else {
+                    urlLock.lock();
+                    try {
                         urlCondition.await(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                        urlLock.unlock();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } finally {
-                    urlLock.unlock();
                 }
             } else {
                 // 当正在运行的线程数大于等于配置的线程数
@@ -135,23 +154,9 @@ public class Pikachu {
                 });
             }
         }
-
-        close();
     }
 
-    private void initCheck() {
-        if (configurer != null) {
-            configurer.configure(config);
-        }
-        if (downloader == null) {
-            downloader = new HttpClientDownloader();
-        }
-        if (executorService == null) {
-            this.executorService = Executors.newFixedThreadPool(config.threadNum);
-        }
-    }
-
-    private void close() {
+    private void destroy() {
         executorService.shutdown();
     }
 
@@ -175,6 +180,10 @@ public class Pikachu {
         return new Pikachu.CrawlerBuilder();
     }
 
+    public static Pikachu.CrawlerBuilder builder(Configurer configurer) {
+        return new Pikachu.CrawlerBuilder(configurer);
+    }
+
     public static class CrawlerBuilder {
         private RequestQueue requestQueue = new RequestQueue();
 
@@ -183,6 +192,10 @@ public class Pikachu {
         private Configurer configurer;
 
         CrawlerBuilder() {
+        }
+
+        CrawlerBuilder(Configurer configurer) {
+            this.configurer = configurer;
         }
 
         public Pikachu.CrawlerBuilder seedRequest(String... urls) {
@@ -206,8 +219,5 @@ public class Pikachu {
             return new Pikachu(requestQueue, handler, configurer);
         }
 
-        public String toString() {
-            return "";
-        }
     }
 }

@@ -13,7 +13,6 @@ import java.time.Duration;
 
 public class HttpClientDownloader implements Downloader {
 
-
     private HttpClient httpClient = HttpClient.newBuilder().cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ALL)).followRedirects(HttpClient.Redirect.NORMAL).build();
 
     @Override
