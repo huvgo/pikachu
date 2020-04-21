@@ -16,21 +16,24 @@ public class JSON {
     public JSON(String jsonStr) {
         Assert.notNull(jsonStr);
         this.jsonStr = jsonStr;
-        jsonObj = JSONObject.parse(jsonStr);
+        if (!JSON.isJSON(jsonStr)) {
+            throw new IllegalArgumentException("This is not JSON data");
+        }
     }
 
 
     public Map toMap() {
-        return (Map) jsonObj;
-    }
-
-    public <T> T toObject(Class<T> clazz) {
-        return JSONObject.parseObject(jsonStr, clazz);
+        return com.alibaba.fastjson.JSON.parseObject(jsonStr, Map.class);
     }
 
     public <T> List<T> toList(Class<T> clazz) {
-        return JSONObject.parseArray(jsonStr, clazz);
+        return com.alibaba.fastjson.JSON.parseArray(jsonStr, clazz);
     }
+
+    public <T> T toObject(Class<T> clazz) {
+        return com.alibaba.fastjson.JSON.parseObject(jsonStr, clazz);
+    }
+
 
     public String jsonPath(String path) {
         JSONPath jsonPath = JSONPath.compile(path);
@@ -58,17 +61,16 @@ public class JSON {
 
     public static boolean isJSON(String test) {
         try {
-            JSONObject.parseObject(test);
+            com.alibaba.fastjson.JSON.parseObject(test);
         } catch (JSONException ex) {
             try {
-                JSONObject.parseArray(test);
+                com.alibaba.fastjson.JSON.parseArray(test);
             } catch (JSONException ex1) {
                 return false;
             }
         }
         return true;
     }
-
 
     @Override
     public String toString() {
